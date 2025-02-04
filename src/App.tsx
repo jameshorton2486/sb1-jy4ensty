@@ -2,6 +2,7 @@ import React from 'react';
 import { FileText } from 'lucide-react';
 import { LegalDocumentForm } from './components/LegalDocumentForm';
 import { DocumentUpload } from './components/DocumentUpload';
+import { AudioTranscription } from './components/AudioTranscription';
 import { useAttorney } from './lib/hooks';
 
 function App() {
@@ -32,13 +33,16 @@ function App() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Legal Document Management</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Upload documents and manage deposition schedules
+            Upload documents, manage deposition schedules, and transcribe audio
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8">
           <div>
             <DocumentUpload />
+          </div>
+          <div>
+            <AudioTranscription />
           </div>
           <div>
             <LegalDocumentForm attorney={attorney} />

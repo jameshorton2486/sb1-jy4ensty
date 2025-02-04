@@ -13,9 +13,10 @@ export function useAttorney() {
   useEffect(() => {
     async function fetchAttorney() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
-        if (!user) {
+        if (sessionError) throw sessionError;
+        if (!sessionData.session) {
           setLoading(false);
           return;
         }
@@ -23,12 +24,17 @@ export function useAttorney() {
         const { data, error } = await supabase
           .from('attorneys')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', sessionData.session.user.id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching attorney:', error);
+          throw error;
+        }
+        
         setAttorney(data);
       } catch (e) {
+        console.error('Attorney fetch error:', e);
         setError(e instanceof Error ? e.message : 'An error occurred');
       } finally {
         setLoading(false);
@@ -49,14 +55,32 @@ export function useDepositions() {
   useEffect(() => {
     async function fetchDepositions() {
       try {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
+        
+        if (!sessionData.session) {
+          console.warn('No active session found');
+          setLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase
           .from('depositions')
           .select('*')
           .order('deposition_date', { ascending: true });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching depositions:', error);
+          throw error;
+        }
+
         setDepositions(data);
       } catch (e) {
+        console.error('Depositions fetch error:', e);
         setError(e instanceof Error ? e.message : 'An error occurred');
       } finally {
         setLoading(false);
